@@ -1,25 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
-
-function App() {
+import "./App.css";
+import React from "react";
+import Input from "./inputFetches";
+import Output from "./outputFetches";  
+import { firestore } from "./firebase";
+export default class App extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      datas: [],
+      loading: true
+    };
+  }
+  componentDidMount(){
+     
+     firestore
+      .collection("student")
+      .onSnapshot((snapshot)=>{
+        const datas=snapshot.docs.map(document=>{
+          const data=document.data();
+          data['id']=document.id;
+          return data;
+        });
+        this.setState({datas:datas,loading:false});
+      })
+  }
+  render(){
+    const { datas, loading } = this.state;
+    console.log(datas);
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className="header">
+        <h1>Fetching Data From Firebase  </h1>
+      </div>
+      <div className="container"> 
+      <Input />
+      <Output datas={datas} loading={loading}/>
+      </div>
     </div>
   );
 }
-
-export default App;
+}
